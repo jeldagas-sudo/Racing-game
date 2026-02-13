@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Pastel Velocity Rush 3D</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="ui">
+      <div class="top-bar">
+        <div class="hud-card">
+          <h1>Pastel Velocity Rush 3D</h1>
+          <p><span id="speed">0</span> km/h</p>
+        </div>
+        <div class="btns">
+          <button id="cameraBtn">카메라: 3인칭</button>
+          <button id="audioBtn">사운드 켜기</button>
+        </div>
+      </div>
+      <p class="hint">가로모드 권장 · WASD/방향키 또는 터치 조작</p>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+    <script src="game.js"></script>
+  </body>
+</html>
