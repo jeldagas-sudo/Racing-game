@@ -6,6 +6,7 @@ const steerPad = document.getElementById('steerPad');
 const steerKnob = document.getElementById('steerKnob');
 const throttlePad = document.getElementById('throttlePad');
 const brakePad = document.getElementById('brakePad');
+const speedFxEl = document.getElementById('speedFx');
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -20,6 +21,7 @@ const roadColor = new THREE.Color('#8b9bb6');
 const grassColor = new THREE.Color('#caf0df');
 
 const camera = new THREE.PerspectiveCamera(58, 16 / 9, 0.1, 5000);
+const baseFov = 58;
 let cameraMode = 'third';
 
 const hemi = new THREE.HemisphereLight(0xfff2fa, 0xa4d7c3, 1.15);
@@ -279,6 +281,25 @@ function updateCar(dt) {
   speedEl.textContent = Math.round(state.speed * 1.35);
 }
 
+function updateSpeedFx(dt) {
+  const speedRatio = state.speed / 380;
+  const speedWarp = THREE.MathUtils.smoothstep(speedRatio, 0.35, 1);
+  const intensity = THREE.MathUtils.clamp(speedWarp * 0.72 + state.boost * 0.35, 0, 1);
+
+  const baseShake = (0.22 + speedRatio * 1.9 + state.boost * 2.7) * (cameraMode === 'first' ? 1.5 : 1);
+  const shakeX = (Math.sin(performance.now() * 0.026) + Math.sin(performance.now() * 0.043 + 1.2)) * baseShake;
+  const shakeY = Math.cos(performance.now() * 0.034 + 0.4) * baseShake * 0.55;
+
+  const targetFov = baseFov + speedRatio * 16 + state.boost * 8 + (cameraMode === 'first' ? 4 : 0);
+  camera.fov += (targetFov - camera.fov) * Math.min(1, dt * 6);
+
+  const radialScale = 1 + intensity * 0.18;
+  const streakShift = speedRatio * 34 + state.boost * 22;
+  speedFxEl.style.opacity = (0.06 + intensity * 0.62).toFixed(3);
+  speedFxEl.style.transform = `translate3d(${shakeX.toFixed(2)}px, ${shakeY.toFixed(2)}px, 0) scale(${radialScale.toFixed(3)})`;
+  speedFxEl.style.backgroundPosition = `center, ${streakShift.toFixed(2)}px 0`;
+}
+
 function updateCamera(dt) {
   const forward = new THREE.Vector3(Math.sin(state.heading), 0, Math.cos(state.heading));
   const up = new THREE.Vector3(0, 1, 0);
@@ -309,6 +330,7 @@ function animate(now) {
 
   updateCar(dt);
   updateCamera(dt);
+  updateSpeedFx(dt);
 
   const w = innerWidth;
   const h = innerHeight;
