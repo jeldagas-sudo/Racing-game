@@ -1,0 +1,151 @@
+:root {
+  --panel: rgba(18, 29, 52, 0.52);
+  --line: rgba(255, 255, 255, 0.45);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Pretendard', 'Noto Sans KR', system-ui, sans-serif;
+  background: linear-gradient(150deg, #f9efff 0%, #d8ebff 50%, #cbf4e4 100%);
+  color: #fff;
+}
+
+#gameCanvas {
+  width: 100vw;
+  height: 100dvh;
+  display: block;
+  touch-action: none;
+}
+
+#ui {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: env(safe-area-inset-top, 12px) 14px env(safe-area-inset-bottom, 12px);
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.hud-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  padding: 10px 14px;
+  min-width: 178px;
+}
+
+.hud-card h1 { font-size: 0.98rem; }
+.hud-card p {
+  margin-top: 4px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffe8fb;
+}
+
+.btns {
+  pointer-events: all;
+  display: flex;
+  gap: 8px;
+}
+
+button {
+  border: 1px solid var(--line);
+  background: rgba(35, 53, 88, 0.7);
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 10px 13px;
+  white-space: nowrap;
+}
+
+.touch-ui {
+  pointer-events: none;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 8px;
+}
+
+.touchpad {
+  pointer-events: all;
+  width: min(28vw, 190px);
+  height: min(28vw, 190px);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.24), rgba(29, 42, 70, 0.35));
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  position: relative;
+  margin-left: 6px;
+  touch-action: none;
+}
+
+.touchpad-knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 38%;
+  height: 38%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+.pedal-stack {
+  pointer-events: all;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-right: 6px;
+}
+
+.pedal {
+  min-width: 102px;
+  min-height: 44px;
+  touch-action: none;
+}
+
+.pedal-accel { background: rgba(100, 214, 176, 0.75); }
+.pedal-brake { background: rgba(255, 133, 164, 0.75); }
+.pedal-boost {
+  background: linear-gradient(90deg, rgba(94, 196, 255, 0.85), rgba(176, 123, 255, 0.85));
+  box-shadow: 0 0 18px rgba(140, 180, 255, 0.35);
+}
+
+.hint {
+  align-self: center;
+  margin-bottom: max(8px, env(safe-area-inset-bottom));
+  background: rgba(9, 15, 31, 0.4);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  padding: 7px 12px;
+}
+
+@media (max-width: 900px) {
+  .pedal { min-width: 92px; }
+}
