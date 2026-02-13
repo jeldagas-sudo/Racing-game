@@ -2,6 +2,10 @@ const canvas = document.getElementById('gameCanvas');
 const speedEl = document.getElementById('speed');
 const cameraBtn = document.getElementById('cameraBtn');
 const audioBtn = document.getElementById('audioBtn');
+const steerPad = document.getElementById('steerPad');
+const steerKnob = document.getElementById('steerKnob');
+const throttlePad = document.getElementById('throttlePad');
+const brakePad = document.getElementById('brakePad');
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -108,10 +112,75 @@ const state = { x: 0, z: 0, heading: 0, speed: 0, steer: 0, boost: 0 };
 const control = { steer: 0, throttle: 0, brake: 0 };
 
 const touches = new Map();
+const touchPadState = { steerPointerId: null, accelIds: new Set(), brakeIds: new Set() };
+
 canvas.addEventListener('touchstart', touchUpdate, { passive: false });
 canvas.addEventListener('touchmove', touchUpdate, { passive: false });
 canvas.addEventListener('touchend', touchEnd, { passive: false });
 canvas.addEventListener('touchcancel', touchEnd, { passive: false });
+
+steerPad.addEventListener('pointerdown', onSteerStart);
+addEventListener('pointermove', onSteerMove);
+addEventListener('pointerup', onSteerEnd);
+addEventListener('pointercancel', onSteerEnd);
+
+bindPedal(throttlePad, 'accelIds', 'throttle');
+bindPedal(brakePad, 'brakeIds', 'brake');
+
+function bindPedal(el, idKey, controlKey) {
+  el.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    el.setPointerCapture(e.pointerId);
+    touchPadState[idKey].add(e.pointerId);
+    control[controlKey] = 1;
+    el.classList.add('on');
+  });
+
+  const end = (e) => {
+    if (!touchPadState[idKey].has(e.pointerId)) return;
+    touchPadState[idKey].delete(e.pointerId);
+    if (touchPadState[idKey].size === 0) {
+      control[controlKey] = 0;
+      el.classList.remove('on');
+    }
+  };
+
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', end);
+}
+
+function onSteerStart(e) {
+  e.preventDefault();
+  if (touchPadState.steerPointerId !== null) return;
+  touchPadState.steerPointerId = e.pointerId;
+  steerPad.setPointerCapture(e.pointerId);
+  updateSteerFromPoint(e.clientX);
+}
+
+function onSteerMove(e) {
+  if (e.pointerId !== touchPadState.steerPointerId) return;
+  updateSteerFromPoint(e.clientX);
+}
+
+function onSteerEnd(e) {
+  if (e.pointerId !== touchPadState.steerPointerId) return;
+  touchPadState.steerPointerId = null;
+  control.steer = 0;
+  updateSteerKnob(0);
+}
+
+function updateSteerFromPoint(clientX) {
+  const rect = steerPad.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const steer = THREE.MathUtils.clamp((clientX - centerX) / (rect.width * 0.5), -1, 1);
+  control.steer = steer;
+  updateSteerKnob(steer);
+}
+
+function updateSteerKnob(steer) {
+  const offset = steer * 34;
+  steerKnob.style.transform = `translate(calc(-50% + ${offset}%), -50%)`;
+}
 
 function touchUpdate(e) {
   e.preventDefault();
@@ -126,17 +195,21 @@ function touchEnd(e) {
 }
 
 function calcTouchControl() {
+  if (touchPadState.steerPointerId !== null || touchPadState.accelIds.size || touchPadState.brakeIds.size) return;
+
   control.steer = 0;
   control.throttle = 0;
   control.brake = 0;
   for (const t of touches.values()) {
     if (t.x < innerWidth * 0.5) {
       control.steer = THREE.MathUtils.clamp((t.x - innerWidth * 0.25) / (innerWidth * 0.25), -1, 1);
+      updateSteerKnob(control.steer);
     } else {
       if (t.y < innerHeight * 0.56) control.throttle = THREE.MathUtils.clamp((innerHeight * 0.56 - t.y) / (innerHeight * 0.5), 0, 1);
       else control.brake = THREE.MathUtils.clamp((t.y - innerHeight * 0.56) / (innerHeight * 0.44), 0, 1);
     }
   }
+  if (control.steer === 0) updateSteerKnob(0);
 }
 
 addEventListener('keydown', (e) => {
