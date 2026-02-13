@@ -95,3 +95,67 @@ button {
   font-size: 0.78rem;
   padding: 7px 12px;
 }
+
+#touchControls {
+  pointer-events: all;
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 14px;
+  padding: 0 4px max(8px, env(safe-area-inset-bottom));
+}
+
+.touch-card {
+  background: rgba(10, 18, 35, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  backdrop-filter: blur(6px);
+}
+
+#steerPad {
+  width: min(32vw, 148px);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  position: relative;
+}
+
+#steerKnob {
+  width: 36%;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.pedal-wrap {
+  display: flex;
+  gap: 10px;
+}
+
+.pedal {
+  border-radius: 16px;
+  min-width: min(24vw, 116px);
+  min-height: min(26vw, 130px);
+  color: #f6f7ff;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+#throttlePad:active,
+#throttlePad.on {
+  background: rgba(43, 175, 108, 0.5);
+}
+
+#brakePad:active,
+#brakePad.on {
+  background: rgba(218, 78, 92, 0.5);
+}
+
+@media (pointer: fine) {
+  #touchControls {
+    display: none;
+  }
+}
